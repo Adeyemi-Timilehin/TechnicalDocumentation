@@ -1,0 +1,409 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./main.css">
+</head>
+
+<body>
+    <nav id="navbar">
+        <header>Async JavaScript Documentation</header>
+        <ul>
+            <li><a class="nav-link" href="#Introduction">Introduction</a></li>
+            <li><a class="nav-link" href="#Understanding_JavaScript_Events">Understanding JavaScript Events</a></li>
+            <li><a class="nav-link" href="#Distributing_Events">Distributing Events</a></li>
+            <li><a class="nav-link" href="#Promises_and_Deferreds">Promises and Deferreds</a></li>
+            <li><a class="nav-link" href="#Multithreading_with_Workers">Multithreading with Workers</a></li>
+            <li><a class="nav-link" href="#Async_Script_Loading">Async Script Loading</a></li>
+        </ul>
+    </nav>
+    <main id="main-doc">
+        <section class="main-section" id="Introduction">
+            <header>Introduction</header>
+            <article>
+                <p> Originally devised to enhance web pages in Netscape 2.0, JavaScript is now faced with being a
+                    single-threaded language in a multimedia, multitasking, multicore world. Yet JavaScript has not only
+                    persevered since 1995, it’s thrived. One after the other, potential rivals in the browser—Flash,
+                    Silverlight, and Java applets, to name a few—have come and (more or less) gone.</p>
+                <p>Meanwhile, when a programmer named Ryan Dahl wanted to build a new framework for event-driven
+                    servers, he
+                    searched the far reaches of computer science for a language that was both dynamic and
+                    single-threaded
+                    before realizing that the answer was right in front of him. And so, Node.js was born, and JavaScript
+                    became a force to be reckoned with in the server world.</p>
+                <p>How did this happen? As recently as 2001, Paul Graham wrote the following in his essay <q>The Other
+                        Road
+                        Ahead</q>: 1 <blockquote>I would not even use JavaScript, if I were you... Most of the
+                        JavaScript I
+                        see on the Web isn’t necessary, and much of it breaks.</blockquote>
+                    <p>Today, Graham is the lead partner at Y Combinator, the investment group behind Dropbox, Heroku,
+                        and
+                        hundreds of other start-ups—nearly all of which use JavaScript. As he put it in a revised
+                        version of
+                        the essay, <q>JavaScript now works</q>.</p>
+                    <p>When did JavaScript become a respectable language? Some say the turning point was Gmail (2004),
+                        which
+                        showed the world that with a heavy dose of Ajax you could run a first-class email client in the
+                        browser. </p>
+                    <p> Whatever the reason, JavaScript is here to stay. Apple got behind JavaScript with WebKit and
+                        Safari.
+                        Microsoft is getting behind JavaScript with Metro. Even Adobe is getting behind JavaScript with
+                        tools to generate HTML5 instead of Flash. What began as a humble browser feature has become
+                        arguably
+                        the most important programming language in the world.</p>
+                    <p>Thanks to the ubiquity of web browsers, JavaScript has come closer than any other language to
+                        fulfilling Java’s old promise of <q>write once, run any- where.</q>In 2007, Jeff Atwood coined
+                        Atwood’s law:</p>
+                    <ul>
+                        <li>Trouble in Paradise</li>
+                        <p>JavaScript was conceived to be a single-threaded language where asyn- chronous tasks are
+                            handled
+                            with events. When there are only a few potential events, event-based code is much simpler
+                            than
+                            multithreaded code.</p>
+                        <p>It’s con- ceptually elegant, and it eliminates the need to wrap up data in mutexes and
+                            semaphores
+                            to make it thread-safe. But when a number of events are expected, with state that needs to
+                            be
+                            carried from one event to the next, that simplicity often gives way to a code structure so
+                            terrifying that it’s been dubbed the Pyramid of Doom.</p>.
+                        <code> step1(function(result1) { step2(function(result2) { step3(function(result3) { // and so on... }); }); }); </code>
+                        <p> “I love async, but I can’t code like this,” one developer famously complained on the Node.js
+                            Google Group. 4 But the problem isn’t with the language itself; it’s with the way
+                            programmers
+                            use the language. Dealing with complex sets of events in an elegant way is still frontier
+                            territory in JavaScript </p>
+                        <li>Who Is This Book For?</li>
+                        <p> This book is aimed at intermediate JavaScripters. You should know how variables are scoped.
+                            Keywords like typeof , arguments , and this shouldn’t faze you. Perhaps most importantly,
+                            you
+                            should understand that<code>func(function(arg) { return next(arg); });</code>is just a
+                            needlessly verbose way of writing<code>func(next);</code> except in rare cases. (See Reg
+                            Braithwaite’s excellent article “Captain Obvious on JavaScript” for more examples of small
+                            but
+                            important functional idioms.) <p>What you don’t need to know is how asynchronous events are
+                                scheduled in JavaScript. We’ll cover that in the next chapter </p>
+                            <li>Resources for Learning JavaScript</li>
+                            <p> As JavaScript has become the lingua franca of the Web (not to mention mobile devices), a
+                                vast number of informative books, courses, and sites devoted to it have appeared. Here
+                                are a
+                                few that I recommend: <li>If you’re new to programming altogether, check out the
+                                    interactive
+                                    tutorial site Codecademy</li>
+                                <li>If you’re coming from another language and want to get up and running with
+                                    JavaScript as
+                                    a language for scripting the browser, take the interac- tive jQuery Air courses on
+                                    CodeSchool.</li>
+                                <li>If you want a more formal introduction to the JavaScript language, absorb Marijn
+                                    Haverbeke’s Eloquent JavaScript.</li>
+                                <li>If you’re a JavaScript beginner who wants to level up and avoid common pitfalls,
+                                    spend
+                                    some time in the JavaScript Garden.</li>
+                            </p>
+                    </ul>
+            </article>
+        </section>
+        <section class="main-section" id="Understanding_JavaScript_Events">
+            <header>Understanding JavaScript Events</header>
+            <p> Events. How do they work? Confusion about JavaScript’s asynchronous event model is as old as JavaScript
+                itself. Confusion leads to bugs, bugs lead to anger, and Yoda taught us the rest....</p>
+            <p> Yet at heart, JavaScript events are both conceptually elegant and practical.</p>
+            <p>Once you’ve accepted the language’s single-threaded design, it feels like a feature rather than a
+                limitation.
+                It means that your code is uninterruptible and that the events you schedule line up in an orderly
+                fashion.
+            </p>
+            <p>In this chapter, we’ll take a tour of JavaScript’s asynchronous mechanisms and dispel some common
+                misconceptions. We’ll see what setTimeout really does.</p>
+            <p>Then we’ll discuss handling errors in callbacks. Finally, we’ll set up the main theme of this book:
+                organizing async code for clarity and maintainability. </p>
+            <ul>
+                <li>Scheduling Events <p>When we want to make a piece of code run in the future in JavaScript, we put it
+                        in
+                        a callback. A callback is just an ordinary function, except that it’s passed to a function like
+                        setTimeout or bound as a property like document.onready . When a callback runs, we say that an
+                        event
+                        (e.g., the timeout elapsing or the document becoming ready) has fired.</p>
+                    <p>But as we’ll see in this section, and throughout this chapter, that description is seriously
+                        flawed.
+                        In most cases, it’s only approximately true. In others, it’s flat-out wrong. To truly understand
+                        setTimeout , we have to understand the JavaScript event model as a whole</p>
+                </li>
+                <li>Now or Later? <p> To begin our exploration of <code>setTimeout</code> , let’s look at a simple
+                        example
+                        of a situ- ation that often mystifies new JavaScripters, especially those coming from
+                        multithreaded
+                        languages like Java and Ruby </p>
+                    <code> for (var i = 1; i <= 3; i++) { setTimeout(function(){ console.log(i); }, 0); }; </code>
+                <li> There’s only one variable named i , scoped by the declaration var i (which, incidentally, scopes it
+                    not
+                    within the loop but within the closest function containing the loop). </li>
+                <li>After the loop, <code>i === 4</code> , having been incremented until it failed the condition
+                    <code> i <= 3 </code> .</li>
+                <li>JavaScript event handlers don’t run until the thread is free.</li>
+                </li>
+                <li>Blocking the Thread <p>This piece of code demolished my preconceptions about JavaScript events:</p>
+                    <code>var start = new Date; setTimeout(function(){ var end = new Date; console.log('Time elapsed:', end - start, 'ms'); }, 500); while (new Date - start < 1000) {};</code>
+                    <p>In my multithreaded mind-set, I’d expected only 500ms to go by before the timed function ran. But
+                        that would have required the loop, designed to last a full second, to be interrupted. Instead,
+                        if
+                        you run the code, you’ll get something like this:</p>
+                    <p>You’ll probably get a slightly different number; <code>setTimeout</code> and
+                        <code>setInterval</code>
+                        are, alas, a lot less precise than you’d hope <a href="#"> (see Timing Functions</a>, on page
+                        5).
+                        But it will definitely be at least 1000 , because the setTimeout callback can’t fire until the
+                        while
+                        loop has finished running. So, if <code>setTimeout</code> isn’t using another thread, then what
+                        is
+                        it doing?</p>
+                </li>
+                <li>Meet the Queue</li>
+                <p>When we call setTimeout , a timeout event is queued. Then execution continues: the line after the
+                    setTimeout call runs, and then the line after that, and so on, until there are no lines left. Only
+                    then
+                    does the JavaScript virtual machine ask, “What’s on the queue?” If there’s at least one event on the
+                    queue that’s eligible to “fire” (like a 500ms timeout that was set 1000ms ago), the VM will pick one
+                    and
+                    call its handler (e.g., the function we passed in to setTimeout ). When the handler returns, we go
+                    back
+                    to the queue.</p>
+                <p>Input events work the same way: when a user clicks a DOM element with a click handler attached, a
+                    click
+                    event is queued. But the handler won’t be executed until all currently running code has finished
+                    (and,
+                    potentially, until after other events have had their turn). That’s why web pages that use
+                    Java-Script
+                    imprudently tend to become unresponsive.</p>
+                <p>You might sometimes hear the term event loop used to describe how the queue works. It’s as if your
+                    code
+                    is being run from a loop that looks like this:</p>
+                <code> runYourScript(); while (atLeastOneEventIsQueued) { fireNextQueuedEvent(); }; </code>
+                <p>The ease of event scheduling in JavaScript is one of the language’s most powerful features. Async
+                    functions like setTimeout make delayed execution simple, without spawning threads. JavaScript code
+                    can
+                    never be interrupted,because events can be queued only while code is running; they can’t fire until
+                    it’s
+                    done.</p>
+                <li>Un-nesting Callbacks <p>The most common anti-pattern in JavaScript is nesting callbacks within
+                        callbacks. Remember the Pyramid of Doom from the introduction? Let’s look at a concrete example
+                        that
+                        you might see in a Node server.</p>
+                    <code> function checkPassword(username, passwordGuess, callback) { var queryStr = 'SELECT * FROM user WHERE username = ?'; db.query(selectUser, username, function (err, result) { if (err) throw err; hash(passwordGuess, function(passwordGuessHash) { callback(passwordGuessHash === result['password_hash']); }); }); } </code>
+                    <p>Here we’ve defined an async function ( checkPassword ), which fires another async function (
+                        db.query
+                        ), which potentially fires another async function ( hash ). (It’s impossible to know for certain
+                        whether these functions are async without actually reading their code, but it’s reasonable to
+                        assume
+                        so here.)</p>
+                    <p>What’s the problem with this code? Right now, nothing. It works, and it’s succinct. But it’s
+                        going to
+                        get awfully hairy when we try to add new features to it, like handling that database error
+                        instead
+                        of throwing it (see To Throw or Not to Throw?, on page 16), logging access attempts, throttling,
+                        and
+                        so on.</p>
+                    <p>Nested callbacks tempt us to add more features by adding more code, rather than implementing
+                        those
+                        features in manageable, reusable pieces. This equivalent implementation of
+                        <code>checkPassword</code> avoids that temptation:</p>
+                    <code>function checkPassword(username, passwordGuess, callback) { var passwordHash; var queryStr = 'SELECT * FROM user WHERE username = ?'; db.query(selectUser, username, queryCallback);</code>
+                    <code>function checkPassword(username, passwordGuess, callback) { var passwordHash; var queryStr = 'SELECT * FROM user WHERE username = ?'; db.query(selectUser, username, queryCallback);</code>
+                    <code>function queryCallback(err, result) { if (err) throw err; passwordHash = result['password_hash']; hash(passwordGuess, hashCallback); }</code>
+                    <code>function hashCallback(passwordGuessHash) { callback(passwordHash === passwordGuessHash); } }</code>
+                    <p>This approach is more verbose, but it reads more clearly and is much easier to extend. Because
+                        we’ve
+                        given the async result ( passwordHash ) broader scope, we have more flexibility.</p>
+                    <p>As a rule, avoid more than two levels of function nesting. The key is to figure out a way of
+                        storing
+                        async results outside of the function making the async call so that the callback doesn’t have to
+                        be
+                        nested.</p>
+                    <p>If all of this sounds tricky, don’t worry. We’ll see plenty of examples in later chapters of
+                        async
+                        events running in sequence without nested handlers.</p>
+                </li>
+            </ul>
+        </section>
+        <section class="main-section" id="Distributing_Events">
+            <header>Distributing Events</header>
+            <article>
+                <p>In the previous chapter, we looked at how async events work in JavaScript. <p>But in practice, how
+                        should
+                        we handle those events? <p>That may sound like a silly question. Just attach a handler to each
+                            event
+                            your app cares about, right? But when a single event has several conse- quences, the “one
+                            event,
+                            one handler” approach forces handlers to grow to gargantuan proportions. <p>Let’s say you’re
+                                building a web-based word processor like Google Docs. <p> Every time a user presses a
+                                    key, a
+                                    number of things need to happen: the new character has to be displayed on the
+                                    screen,
+                                    the caret has to be moved, the action has to be pushed to the local undo history and
+                                    synced to the server, spell-check may have to run, and the word count and page count
+                                    may
+                                    need to be updated. Carrying out all of these tasks and more from a single keypress
+                                    handler is a daunting proposition.</p>
+                                <ul>
+                                    <li>PubSub <p>Since the dawn of JavaScript, browsers have allowed event handlers to
+                                            be
+                                            attached to DOM elements like so:</p>
+                                        <code>link.onclick = clickHandler;</code>
+                                        <p>Ah, simplicity itself! There’s just one caveat: if you wanted two click
+                                            handlers
+                                            for an element, you’d have to aggregate them yourself with a wrapper
+                                            function.
+                                        </p>
+                                        <code>link.onclick = function() { clickHandler1.apply(this, arguments); clickHandler2.apply(this, arguments); };</code>
+                                        <p>Not only is this tedious, it’s also a recipe for bloated, all-purpose handler
+                                            functions. That’s why the W3C added addEventListener to the DOM
+                                            specification in
+                                            2000 and jQuery abstracted it with the bind method. bind makes it easy to
+                                            add as
+                                            many handlers as you like to any event on any element (or set of ele-
+                                            ments),
+                                            without worrying about stepping on anyone else’s toes.</p>
+                                        <code>$(link) .bind('click', clickHandler1) .bind('click', clickHandler2);</code>
+                                    </li>
+                                    <li>EventEmitter <p> Let’s use Node’s EventEmitter as an example of a PubSub
+                                            interface.
+                                            It has a simple, nearly minimal design.</p>
+                                        <p>To add an event handler to an EventEmitter , just call on with the event type
+                                            and
+                                            the handler. </p>
+                                        <code>emitter.on('evacuate', function(message) { console.log(message); });</code>
+                                        <p>The emit method will call all handlers for the given event type. For
+                                            instance,
+                                            the following<code>emitter.emit('evacuate');</code>would call all evacuate
+                                            handlers</p>
+                                    </li>
+                                    <li>Roll Your Own PubSub <p> PubSub implementations are so simple that we can create
+                                            one
+                                            in about a dozen lines of code. The only state we need to store is a list of
+                                            handlers for each event type we support</p>
+                                        <code>PubSub = {handlers: {}}</code>
+                                        <p>When we add a listener, we push it to the end of the array (which means that
+                                            listeners will always be called in the order in which they were added).</p>
+                                        <code>PubSub.on = function(eventType, handler) { if (!(eventType in this.handlers)) { this.handlers[eventType] = []; } this.handlers[eventType].push(handler); return this; }</code>
+                                        <p>Then when an event is emitted, we loop through all of our handlers.</p>
+                                    </li>
+                                    <code>PubSub.emit = function(eventType) { var handlerArgs = Array.prototype.slice.call(arguments, 1); for (var i = 0; i < this.handlers[eventType].length; i++) { this.handlers[eventType][i].apply(this, handlerArgs); } return this; }</code>
+                                </ul>
+            </article>
+        </section>
+        <section class="main-section" id="Promises_and_Deferreds">
+            <header>Promises and Deferreds</header>
+            <p> Thankfully, jQuery 1.5 changed Mr. Ajax’s need-it-now attitude. All of the Ajax functions you know and
+                love
+                ( $.ajax , $.get , and $.post ) now return Promises. A Promise is an object that represents a task with
+                two
+                possible outcomes (success or failure) and holds callbacks that fire when one outcome or the other has
+                occurred. For example, under jQuery 1.4, I’d have had to write this: </p>
+            <code>$.get('/mydata', { success: onSuccess, failure: onFailure, always: onAlways });</code>
+            <p>You might wonder what’s so great about this change. Why would you want to attach a callback after an Ajax
+                call has fired? In a word: encapsulation.</p>
+            <p>If an Ajax call has multiple effects (triggering animations, inserting HTML, locking/unlocking user
+                input,
+                and so on), it’s awkward for the part of your app that’s making the request to handle all of them.</p>
+            <p>It’s much more elegant to pass a Promise around. By passing a Promise, you’re announcing, “Something you
+                might be interested in is happening.</p>
+            <p>If you want to find out when it’s done, just give this Promise a callback.” And like an EventEmitter , a
+                Promise allows you to bind handlers to the same event as many times as you like (stacking). <p>That
+                    makes it
+                    a lot easier to reduce code duplication when some small piece of functionality (like a “Loading”
+                    animation) is shared across several Ajax calls.</p>
+                <p>But the biggest advantage of using Promises is that you can easily derive new Promises from existing
+                    ones. You might ask two Promises representing parallel tasks to give you a Promise that will inform
+                    you
+                    of their mutual completion. Or you might ask a Promise representing the first task in a series to
+                    give
+                    you a Promise representing the final task in the series. As we’ll soon see, these operations come
+                    naturally with Promises</p>
+                <ul>
+                    <li>Making Promises <p>We started this chapter by showing how the Ajax methods in jQuery 1.5+
+                            <code>( $.ajax , $.get , and $.post )</code> return Promises. But to really understand
+                            Promises,
+                            we need to make a few of our own.</p>
+                        <p>Let’s give the user a prompt to hit either Y or N . The first thing we’ll do is create an
+                            instance of $.Deferred that represents the user’s decision.</p>
+                        <code>var promptDeferred = new $.Deferred(); promptDeferred.always(function(){ console.log('A choice was made:'); }); promptDeferred.done(function(){ console.log('Starting game...'); }); promptDeferred.fail(function(){ console.log('No game today.'); });</code>
+                        <p>(Note: always is available only in jQuery 1.6+.)</p>
+                        <p>You’re probably wondering why I created an instance of Deferred when this section is called
+                            “Making Promises.” Fear not—a Deferred is a Promise! More precisely, it’s a superset of
+                            Promise
+                            with one critical addition: you can trigger a Deferred directly. A pure Promise only lets
+                            you
+                            add more callbacks; someone else has to trigger them.</p>
+                    </li>
+                </ul>
+        </section>
+        <section class="main-section" id="Multithreading_with_Workers">
+            <header>Multithreading with Workers</header>
+            <p>At the start of this book, I described events as an alternative to multithreading.</p>
+            <p>More precisely, events replace a specific kind of multithreading, the kind where multiple parts of an
+                application process run simultaneously (either virtually, through interrupts, or physically on multiple
+                CPU
+                cores).</p>
+            <p>This gets to be a problem when code running in different threads has access to the same data. Even a line
+                as
+                simple as <code>i++;</code>
+                <p>can be a source of pernicious Heisenbugs 1 when it allows separate threads to modify the same i at
+                    the
+                    same time.</p>
+                <p>Thankfully, this kind of multithreading is impossible in JavaScript.</p>
+                <p>On the other hand, distributing tasks across multiple CPU cores is increas- ingly essential because
+                    those
+                    cores are no longer making the same exponential gains in efficiency, year after year, that used to
+                    be
+                    expected. So, we need multithreading. Does that mean abandoning event-based programming?</p>
+                <ul>
+                    <li>Web Workers <p>Web workers are part of the living standard widely known as HTML5. To create one,
+                            you
+                            call the global Worker constructor with the URL of a script. </p>
+                        <code>var worker = new Worker('worker.js'); worker.addEventListener('message', function(e) { console.log(e.data); // echo whatever was sent by postMessage })</code>
+                        <p>(Usually, we want only the data property from the message event. If we were binding the same
+                            event handler to multiple workers, we could use e.target to determine which worker emitted
+                            the
+                            event.)</p>
+                        <p>So, now we know how to listen to workers. Conveniently, the interface for talking to workers
+                            is
+                            symmetrical: we use worker.postMessage to send it, and the worker uses
+                            <code>self.addEventListener</code>('message', ...) to receive it. Here’s a complete example:
+                        </p>
+                        <code> // master script var worker = new Worker('boknows.js'); worker.addEventListener('message', function(e) { console.log(e.data); }); worker.postMessage('football'); worker.postMessage('baseball'); // boknows.js self.addEventListener('message', function(e) { self.postMessage('Bo knows ' + e.data); }); </code>
+                        <p>You can play with the message-passing interface at a little site I created, the Web Worker
+                            Sandbox. 2 Any time you create a new example, it gets a unique URL that you can share.</p>
+                    </li>
+                </ul>
+        </section>
+        <section class="main-section" id="Async_Script_Loading">
+            <header>Async Script Loading</header>
+            <p>In the beginning, there was this: <p> <code><script src="allMyClientSideCode.js"></script></code> And it
+                    was...not great. “Where should it go?” developers wondered. “Up in the ? Or down in the ?” For
+                    script-heavy sites, both options lead to misery. A large script in the delays all page rendering,
+                    giving
+                    the user a “White Screen of Death” 1 until the script loads completely. But a large script at the
+                    end of
+                    this gives the user a lifeless, static page littered with nonworking controls and empty boxes where
+                    client-side rendering is supposed to occur.</p>
+                <p>The ideal solution to this problem is to triage your scripts; those that are needed for the page to
+                    look
+                    and feel right should load right away. Scripts that can wait should. But what’s the right way of
+                    delaying those scripts while ensuring that they’re available when called?</p>
+                <p>The ideal solution to this problem is to triage your scripts; those that are needed for the page to
+                    look
+                    and feel right should load right away. Scripts that can wait should. But what’s the right way of
+                    delaying those scripts while ensuring that they’re available when called?</p>
+                <p>In the last few years, several technologies aimed at solving this problem have become widespread. In
+                    this
+                    chapter, we’ll look at how HTML5’s async and defer attributes can help. We’ll also look at two
+                    popular
+                    script-loading libraries: yepnope and Require.js. </p>
+        </section>
+    </main>
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+</body>
+
+</html>
